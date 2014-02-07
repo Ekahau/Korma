@@ -463,6 +463,7 @@
   [query]
   (let [query (apply-prepares query)
         query (bind-query query (eng/->sql query))
+        query (sfns/translate-to-dialect query)
         sql (:sql-str query)
         params (:params query)]
     (cond

@@ -41,6 +41,9 @@
   [strategy]
   (swap! options assoc :naming (->naming strategy)))
 
+(defn set-subprotocol [subprotocol]
+  (swap! options assoc :subprotocol subprotocol))
+
 (defn merge-defaults
   [opts]
   (swap! options merge opts))
