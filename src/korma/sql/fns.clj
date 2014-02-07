@@ -1,7 +1,9 @@
 (ns korma.sql.fns
   (:require [korma.db :as db]
             [korma.mysql :as mysql]
-            [korma.sql.engine :as eng])
+            [korma.mssql :as mssql]
+            [korma.sql.engine :as eng]
+            [korma.config :as config])
   (:use [korma.sql.engine :only [infix group-with sql-func trinary wrapper]]))
 
 ;;*****************************************************
@@ -37,8 +39,9 @@
 ;;*****************************************************
 
 (defn- subprotocol [query]
-  (let [default (get-in @db/_default [:options :subprotocol])]
-     (or (get-in query [:db :options :subprotocol]) default)))
+  (or (:subprotocol @config/options)
+      (get-in query [:db :options :subprotocol])
+      (get-in @db/_default [:options :subprotocol])))
 
 (defn agg-count [query v]
   (if (= "mysql" (subprotocol query))
@@ -52,3 +55,12 @@
 (defn agg-max [_query_ v]   (sql-func "MAX" v))
 (defn agg-first [_query_ v] (sql-func "FIRST" v))
 (defn agg-last [_query_ v]  (sql-func "LAST" v))
+
+;;*****************************************************
+;; Dialects
+;;*****************************************************
+
+(defn translate-to-dialect [query]
+  (if (= "sqlserver" (subprotocol query))
+    (mssql/translate-to-dialect query)
+    query))
